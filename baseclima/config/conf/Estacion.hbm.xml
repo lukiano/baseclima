@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ar.uba.dcao.dbclima.data">
+
+	<class name="Estacion" table="ESTACION">
+		<id name="id" type="long" column="EST_ID">
+			<generator class="native" />
+		</id>
+
+		<property name="codigoPais" type="int" column="COD_PAIS" />
+		<property name="codigoNacional" type="string" column="COD_NAC" />
+
+		<property name="codigoSMN" type="int" column="COD_SMN" />
+		<property name="codigoOMM" type="int" column="COD_OMM" />
+
+		<property name="nombre" type="string" column="NOMBRE" />
+		<property name="provincia" type="string" column="PROV" />
+
+		<property name="fechaInicio" type="date" column="INICIO" />
+		<property name="fechaFin" type="date" column="FIN" />
+
+		<property name="altura" type="int" column="ALTURA" />
+		<property name="latitud" type="int" column="LATITUD" not-null="true"/>
+		<property name="longitud" type="int" column="LONGITUD" not-null="true"/>
+
+		<many-to-one name="dataset" column="DS_ID" cascade="none" not-null="true" />
+
+		<bag name="registros" lazy="extra" order-by="FECHA" inverse="true" cascade="save-update,delete-orphan">
+			<key column="EST_ID" />
+			<one-to-many class="RegistroDiario"/>
+		</bag>
+
+		<bag name="sequias" lazy="extra" order-by="COMIENZO" inverse="true" cascade="delete,delete-orphan">
+			<key column="EST_ID" />
+			<one-to-many class="Sequia"/>
+		</bag>
+
+	</class>
+</hibernate-mapping>

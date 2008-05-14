@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ar.uba.dcao.dbclima.data">
+	<class name="RegistroSatelital" table="REGISTRO_SATELITAL" lazy="true">
+		<id name="id" type="long" column="REG_ID">
+			<generator class="native" />
+		</id>
+		<many-to-one name="dataset" column="DS_ID" cascade="none" not-null="true" />
+ 		<many-to-one name="puntoSatelital" column="PNT_ID" cascade="none" not-null="true" />
+ 		<property name="fecha" type="date" column="FECHA" not-null="true"/>
+ 		<property name="lluvia" type="integer" column="LLUVIA" />
+	</class>
+</hibernate-mapping>

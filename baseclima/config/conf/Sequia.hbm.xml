@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ar.uba.dcao.dbclima.data">
+	<class name="Sequia" table="SEQUIA" lazy="true">
+		<id name="id" type="long" column="SEQ_ID">
+			<generator class="native" />
+		</id>
+
+		<many-to-one name="estacion" column="EST_ID" cascade="save-update" not-null="true"/>
+		
+ 		<property name="comienzo" type="date" column="COMIENZO" not-null="true" />
+
+ 		<property name="longitud" type="integer" column="LONGITUD" not-null="true" />
+ 		
+ 		<many-to-one name="registroComienzo" class="RegistroDiario" column="REG_ID" unique="true" not-null="true"/>
+ 		
+	</class>
+</hibernate-mapping>

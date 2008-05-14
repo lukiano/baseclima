@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ar.uba.dcao.dbclima.data">
+	<class name="Dataset" table="DATASET" lazy="true">
+		<id name="id" type="long" column="ID">
+			<generator class="native" />
+		</id>
+
+ 		<property name="fechaCreacion" type="timestamp" column="FECHA" />
+ 		<property name="fuente" type="string" length="255" column="FUENTE" />
+ 		<property name="usuario" type="string" length="255" column="USUARIO" not-null="true" />
+ 		<property name="referente" type="boolean" column="REFERENTE" not-null="true" />
+
+		<bag name="registros" lazy="extra" cascade="delete,delete-orphan" inverse="true">
+			<key column="DS_ID" />
+			<one-to-many class="RegistroDiario"/>
+		</bag>
+
+		<bag name="estaciones" lazy="true" cascade="delete,delete-orphan" inverse="true">
+			<key column="DS_ID" />
+			<one-to-many class="Estacion"/>
+		</bag>
+
+		<bag name="puntosSatelitales" lazy="true" cascade="delete,delete-orphan" inverse="true">
+			<key column="DS_ID" />
+			<one-to-many class="PuntoSatelital"/>
+		</bag>
+
+		<bag name="registrosSatelitales" lazy="extra" cascade="delete,delete-orphan" inverse="true">
+			<key column="DS_ID" />
+			<one-to-many class="RegistroSatelital"/>
+		</bag>
+
+	</class>
+</hibernate-mapping>

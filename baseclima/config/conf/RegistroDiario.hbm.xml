@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ar.uba.dcao.dbclima.data">
+	<class name="RegistroDiario" table="REGISTRO_DIARIO" lazy="true">
+		<id name="id" type="long" column="REG_ID">
+			<generator class="native" />
+		</id>
+
+		<many-to-one name="estacion" column="EST_ID" cascade="save-update" not-null="true"/>
+		<many-to-one name="dataset" column="DS_ID" cascade="none" not-null="true"/>
+
+		<many-to-one name="ayer" column="REG_AYER_ID" />
+		<many-to-one name="maniana" column="REG_MAN_ID" />
+
+ 		<property name="fecha" type="date" column="FECHA" not-null="true" />
+
+ 		<property name="tempMin" type="short" column="TEMP_MIN" />
+ 		<property name="tempMax" type="short" column="TEMP_MAX" />
+ 		<property name="hayLluvia" type="boolean" column="HAY_LLUVIA" />
+ 		<property name="precipitacion" type="integer" column="PRECIP" />
+
+ 		<property name="codigoConfianzaTempMin" type="string" length="7" column="COD_CONF_TN" />
+ 		<property name="codigoConfianzaTempMax" type="string" length="7" column="COD_CONF_TX" />
+ 		<property name="codigoConfianzaTempRange" type="string" length="7" column="COD_CONF_TR" />
+ 		
+ 		<property name="codigoConfianzaPrecip" type="string" length="7" column="COD_CONF_PR" />
+ 		<property name="codigoConfianzaDrought" type="string" length="32" column="COD_CONF_DR" />
+
+		<set name="resultadosQC" cascade="all,delete-orphan">
+			<key column="REG_ID" />
+			<one-to-many class="ResultadoTestQC"/>
+		</set>
+
+	</class>
+</hibernate-mapping>
