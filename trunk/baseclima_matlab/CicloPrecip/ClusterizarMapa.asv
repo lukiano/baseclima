@@ -1,0 +1,62 @@
+% Made by Juan
+function [clusterMap, numOfClusters, grid] = ClusterizarMapa( sMap, numOfClusters )
+% Toma un SOM, genera un cluster y devuelve un arreglo que mapea neuronas a
+% clusters
+
+    % Primero se obtiene la informacion de clustering.
+    sCl = som_cllinkage(sMap, 'linkage', 'ward');
+
+    % Se genera el mapeo base de neurona -> cluster. Inicialmente cada
+    % neurona ES su propio cluster.
+    clusterMap = sCl.base;
+    
+    grid = zeros
+    
+    grid = sMap.codebook;
+
+    % Para cada par de neuronas que se agrupan, se actualiza el mapeo
+    % informando el nuevo cluster de las neuronas del par. Al salir del
+    % ciclo, cada neurona tiene asignado su cluster final.
+    for i = 1:length(sCl.tree) - numOfClusters + 1
+        for j = 1:length(clusterMap)
+            if (clusterMap(j) == sCl.tree(i,1) | clusterMap(j) == sCl.tree(i,2))
+                clusterMap(j) = length(clusterMap) + i;
+            end
+        end
+    end
+
+    % Renombro los clusters para que queden libres los valores
+    % 1:length(cluster)
+    clusterMap = clusterMap + length(clusterMap);
+
+    % Aprovechandome de que los valores 1:length(cluster) estan libres y
+    % que numClusters <= length(clusters)
+    % cambio los clusters por los valores 1:numClusters.
+    changed = 1;
+    currNewIndex = 1;
+    while changed == 1
+        changed = 0;
+        for i = 1:length(clusterMap)
+            if clusterMap(i) > length(clusterMap)
+                changed = 1;
+                clusterMap = replace(clusterMap,clusterMap(i),currNewIndex);
+                currNewIndex = currNewIndex + 1;
+            end
+        end
+    end
+end
+
+%tambien podria ser algo como
+%
+% vector(find(vector == oldVal)) = newVal;
+% para el caso en el que vector y rv sean lo mismo (que es como veo que se
+% esta usando)
+
+function rv = replace(vector,oldVal,newVal)
+    rv = vector;
+    for i = 1:length(rv)
+        if (rv(i) == oldVal)
+            rv(i) = newVal;
+        end
+    end
+end
