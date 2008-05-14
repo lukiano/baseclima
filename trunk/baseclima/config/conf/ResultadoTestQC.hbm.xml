@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ar.uba.dcao.dbclima.data">
+	<class name="ResultadoTestQC" table="RESULTADO_TEST" lazy="true">
+		<id name="id" type="long" column="RES_ID">
+			<generator class="native" />
+		</id>
+
+		<many-to-one name="registro" column="REG_ID" class="RegistroDiario" not-null="true"/>
+
+ 		<property name="testID" type="string" column="TEST_ID" not-null="true"/>
+ 		<property name="valor" type="double" column="VAL" />
+	</class>
+</hibernate-mapping>

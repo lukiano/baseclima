@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ar.uba.dcao.dbclima.data">
+	<class name="PuntoSatelital" table="PUNTO_SATELITAL" lazy="true">
+		<id name="id" type="long" column="PNT_ID">
+			<generator class="native" />
+		</id>
+		
+		<many-to-one name="dataset" column="DS_ID" cascade="none" not-null="true"/>
+
+ 		<property name="latitud" type="integer" column="LATITUD" not-null="true"/>
+ 		<property name="longitud" type="integer" column="LONGITUD" not-null="true"/>
+		
+		<property name="fechaInicio" type="date" column="INICIO" />
+		<property name="fechaFin" type="date" column="FIN" />
+ 		
+ 		<bag name="registrosSatelitales" lazy="extra" order-by="FECHA" inverse="true" cascade="delete,delete-orphan">
+			<key column="PNT_ID" />
+			<one-to-many class="RegistroSatelital"/>
+		</bag>
+ 		
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="ar.uba.dcao.dbclima.data">
+
+	<class name="CorrelacionEstaciones" table="CORR_ESTACIONES">
+		<id name="id" type="long" column="CORR_ID">
+			<generator class="native" />
+		</id>
+
+		<property name="variable" type="string" column="VARIABLE" />
+		<property name="comienzo" type="date" column="COMIENZO" />
+		<property name="fin" type="date" column="FIN" />
+
+		<property name="mes" type="int" column="MES_ANIO" />
+
+		<property name="numRegsUsados" type="int" column="REGS_COMUN" />
+		<property name="correlacion" type="double" column="CORRELACION" />
+
+		<property name="pendiente" type="double" column="PENDIENTE" />
+		<property name="ordenadaOrigen" type="double" column="ORDENADA_ORIGEN" />
+		<property name="desviacionEstimacion" type="double" column="DESV_ESTIMACION" />
+
+		<many-to-one name="e1" column="E1_ID"/>
+		<many-to-one name="e2" column="E2_ID"/>
+
+	</class>
+</hibernate-mapping>
