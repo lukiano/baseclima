@@ -37,8 +37,9 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
     %normalize
     mean_data = mean(big_range_data, 2);
     std_data = std(big_range_data, 0, 2);
-    mean_data = repmat(mean_data, 1, 17);
-    std_data = repmat(std_data, 1, 17);
+    num_models = size(big_range_data, 2);
+    mean_data = repmat(mean_data, 1, num_models);
+    std_data = repmat(std_data, 1, num_models);
     big_range_data = big_range_data - mean_data;
     big_range_data = big_range_data ./ std_data;
     %end normalize
@@ -67,7 +68,7 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
     
     models_activated = cell(0);
     total = size(big_range_data, 1);
-    models_activated(1) = {[0, 100, mean(1:17)]};
+    models_activated(1) = {[0, 100, mean(1:num_models)]};
     for i = 1:models_length
         model_slice = squeeze(big_range_data(:,i));
         value = mean(model_slice);
@@ -109,7 +110,7 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
             
             models_activated = cell(0);
             total = totalPointsSize;
-            models_activated(1) = {[0, 100, mean(1:17)]};
+            models_activated(1) = {[0, 100, mean(1:num_models)]};
             for j = 1:models_length
                 model_slice = squeeze(big_range_data(:,j));
                 summ = mean(model_slice(points));
