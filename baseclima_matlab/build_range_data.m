@@ -6,8 +6,8 @@
 % 1 >= n > 1000: "n degree (model)" - "1975-2000 (model)"
 %use_range 0: put original values of models; 1: sort models and put their resulting rank
 function build_range_data(scen, cvar, month, difftype, use_range) 
-    dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
-    %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
+    %dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
+    dirString = uigetdir('c:\eclipse\workspace\baseclima_matlab','Choose data directory');
     if (dirString == 0)
         % no directory was chosen, exit program
         return;
