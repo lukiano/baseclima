@@ -84,35 +84,60 @@ function [clusterMap, bits] = buildClusterMap(sCl, numOfClusters)
     baselength = length(sCl.base);
     index = length(sCl.tree);
     while index >= 1 && counter < numOfClusters;
-        bit_indices = find(bits == 1);
+        bit_indices = find(bits > 0);
         left = find(sCl.tree(bit_indices, 1) == index + baselength);
         right = find(sCl.tree(bit_indices, 2) == index + baselength);
-        bits(bit_indices(left)) = 2;
-        counter = counter - length(left);
-        bits(bit_indices(right)) = 2;
-        counter = counter - length(right);
-
-        bits(index) = 1;
-        counter = counter + 1;
-        index = index - 1;
+        total = [left right];
+        ok = 1;
+        if (bits(bit_indices(total)) == 2)
+            grandleft = find(sCl.tree(:, 1) == bit_indices(total) + baselength);
+            grandright = find(sCl.tree(:, 2) == bit_indices(total) + baselength);
+            grandtotal = [grandleft grandright];
+            if length(grandtotal) == 1
+                if bits(grandtotal) == 3
+                    bits(bit_indices(total)) = 3;
+                else
+                    ok = 0;
+                end
+            else
+                bits(bit_indices(total)) = 3;
+            end
+        elseif (bits(bit_indices(total)) == 1)
+            bits(bit_indices(total)) = 2;
+            counter = counter - length(total);
+        end
+        if (ok == 1)
+            bits(index) = 1;
+            counter = counter + 1;
+        end
+            index = index - 1;
     end
+    bits(find(bits == 3)) = 2;
     twos = find(bits == 2);
     twos_that_should_be_one = bits(sCl.tree(twos, 1) - baselength) == 0 | bits(sCl.tree(twos, 2) - baselength) == 0;
     twos_that_should_be_one_indices = twos(find(twos_that_should_be_one == 1));
     bits(twos_that_should_be_one_indices) = 1;
-    bits(sCl.tree(twos_that_should_be_one_indices, 1) - baselength) = 0;
-    bits(sCl.tree(twos_that_should_be_one_indices, 2) - baselength) = 0;
+    leftIndices = sCl.tree(twos_that_should_be_one_indices, 1) - baselength;
+    bits = clearBitsRecursively(bits, leftIndices, sCl, baselength);
+    rightIndices = sCl.tree(twos_that_should_be_one_indices, 2) - baselength;
+    bits = clearBitsRecursively(bits, rightIndices, sCl, baselength);
     
     for i = 1:length(sCl.tree)
         if bits(i) ~= 2
-            for j = 1:length(clusterMap)
-                if (clusterMap(j) == sCl.tree(i,1) || clusterMap(j) == sCl.tree(i,2))
-                    clusterMap(j) = length(clusterMap) + i;
-                end
-            end
+            boolValue = (clusterMap == sCl.tree(i,1) | clusterMap == sCl.tree(i,2));
+            clusterMap = clusterMap - boolValue.*clusterMap + boolValue.*(length(clusterMap) + i);
         end
     end
     
+%    for i = 1:length(sCl.tree)
+%        if bits(i) ~= 2
+%            for j = 1:length(clusterMap)
+%                if (clusterMap(j) == sCl.tree(i,1) || clusterMap(j) == sCl.tree(i,2))
+%                    clusterMap(j) = length(clusterMap) + i;
+%                end
+%            end
+%        end
+%    end
     
     
 %     for i = 1:length(sCl.tree) - numOfClusters + 1
@@ -143,6 +168,18 @@ function [clusterMap, bits] = buildClusterMap(sCl, numOfClusters)
 %             end
 %         end
 %     end
+end
+
+function bits = clearBitsRecursively(bits, indices, sCl, baselength)
+    if sum(bits(indices)) > 0
+       for i = 1:length(indices)
+           leftIndices = sCl.tree(indices(i), 1) - baselength;
+           bits = clearBitsRecursively(bits, leftIndices, sCl, baselength);
+           rightIndices = sCl.tree(indices(i), 2) - baselength;
+           bits = clearBitsRecursively(bits, rightIndices, sCl, baselength);           
+       end
+       bits(indices) = 0;
+    end    
 end
 
 function rv = replace(vector,oldVal,newVal)
