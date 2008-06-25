@@ -65,7 +65,7 @@ function visuSmoothedAverage_lats(cvar, common_models, latitudes)
        hold on
        for i = 1:size(struct_sresa2.smoothed_years, 2)
            sm_years = squeeze(struct_sresa2.smoothed_years(lat, i, indices));
-           %sm_years = sm_years - sm_years(1);
+           sm_years = sm_years - sm_years(1);
            plot(years, sm_years, colors{i});
            sresa2_models{i} = regexprep(sresa2_models{i},'\_','\\_');
        end
@@ -73,7 +73,7 @@ function visuSmoothedAverage_lats(cvar, common_models, latitudes)
        title(['sresa2 ' num2str(struct_sresa2.latitudes(lat,1)) ' - ' num2str(struct_sresa2.latitudes(lat,2))]);
        grid on;
        hold off;
-       axis([1900 2100 -5 5]);
+       %axis([1900 2100 -5 5]);
        drawnow;
    end
    
