@@ -175,7 +175,7 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
     
     cluster_masks = bmusToMasks(BmusTwoDims);
     
-    fileout =[scen '_' cvar '_' num2str(numOfClusters) 'cluster_data_' num2str(month) '_' modeltype '.mat'];
+    fileout = [scen '_' cvar '_' num2str(numOfClusters) 'cluster_data_' num2str(month) '_' modeltype '.mat'];
     save(fileout,'sD', 'sMap', 'cluster_models', 'cluster_masks');
 end
 
