@@ -28,12 +28,14 @@ else
     models = cell(0);
     for tn = truenames
         fullname = fullfile(dirString, tn{1});
+        run = get_run(tn{1});
         struc_Sresa2 = load(fullname, 'model');
         model_name = struc_Sresa2.model;
         fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_' run '_' num2str(ndegree) 'degree.mat']);
         fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_per2.mat']);
         do_diff_model21_model20(fullname21, fullname20, month, colors{contador});
         models{contador} = model_name;
+        models{contador} = regexprep(models{contador},'\_','\\_');
         contador = contador + 1;
     end
     legend(models, 'location','EastOutside');

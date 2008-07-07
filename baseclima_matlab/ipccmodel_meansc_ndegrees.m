@@ -33,7 +33,7 @@ latsString = '';
 for i = 1:size(latitudes, 1)
     latsString = [latsString '_' num2str(latitudes(i, 1)) '_' num2str(latitudes(i, 2)) ];
 end
-load([cvar '_sresa2_smoothed_years_lats' latsString '.mat'], 'models', 'runs', 'smoothed_years','years', 'latitudes');
+load([cvar '_' scen '_smoothed_years_lats' latsString '.mat'], 'models', 'runs', 'smoothed_years','years', 'latitudes');
 
 smoothed_years = squeeze(smoothed_years(1,:,:)); %use the first latitude
 nbmod = size(smoothed_years, 1);
