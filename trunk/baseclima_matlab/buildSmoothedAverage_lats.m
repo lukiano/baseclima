@@ -52,8 +52,8 @@ function buildSmoothedAverage_lats(scen, cvar, latitudes)
             
             for lat_index = 1:size(data_tmp, 2) % second dimension is latitude
                 lat = struc.y(lat_index);
-                %if abs(lat) < abs(fromLat) || abs(lat) > abs(toLat)
-                if lat < fromLat || lat > toLat
+                if abs(lat) < abs(fromLat) || abs(lat) > abs(toLat)
+                %if lat < fromLat || lat > toLat
                     data_tmp(:, lat_index, :) = 0;
                 end
             end

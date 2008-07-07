@@ -59,6 +59,10 @@ function visuSmoothedAverage_lats(cvar, common_models, latitudes)
 %     end
 
    colors={'b-', 'g-', 'r-', 'c-', 'm-', 'b-.', 'g-.', 'r-.', 'c-.', 'm-.', 'b--', 'g--', 'r--', 'c--', 'm--', 'b:', 'g:', 'r:', 'c:', 'm:','b-','g-','r-'};
+
+   for i = 1:size(struct_sresa2.smoothed_years, 2)
+          sresa2_models{i} = regexprep(sresa2_models{i},'\_','\\_');
+   end
    
    for lat = 1:size(struct_sresa2.latitudes, 1)
        figure;
@@ -67,7 +71,6 @@ function visuSmoothedAverage_lats(cvar, common_models, latitudes)
            sm_years = squeeze(struct_sresa2.smoothed_years(lat, i, indices));
            sm_years = sm_years - sm_years(1);
            plot(years, sm_years, colors{i});
-           sresa2_models{i} = regexprep(sresa2_models{i},'\_','\\_');
        end
        legend(sresa2_models,'location','EastOutside');
        title(['sresa2 ' num2str(struct_sresa2.latitudes(lat,1)) ' - ' num2str(struct_sresa2.latitudes(lat,2))]);

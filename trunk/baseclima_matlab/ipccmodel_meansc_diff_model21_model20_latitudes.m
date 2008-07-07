@@ -37,6 +37,7 @@ else
         [meanlat, y] = do_diff_model21_model20(fullname21, fullname20, month, colors{contador});
         mean_lat(contador, :) = meanlat;
         models{contador} = model_name;
+        models{contador} = regexprep(models{contador},'\_','\\_');
         contador = contador + 1;
     end
     meanmean = mean(mean_lat, 1);

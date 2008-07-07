@@ -330,7 +330,7 @@ function indices = setMasks(masks, gridpoints, dims)
     if isempty(masks)
         %empty mask
         finalmask = ones(dims(1), dims(2));
-    elseif length(masks) == 1 && strcmp(regional_masks{1}, 'land') == 1
+    elseif length(masks) == 1 && strcmp(masks{1}, 'land') == 1
         finalmask = land_mask;
     else
         finalmask = zeros(dims(1), dims(2));
@@ -355,9 +355,9 @@ function indices = setMasks(masks, gridpoints, dims)
                 finalmask = finalmask | south_mask;
             end
         end
-        if containsMask(regional_masks, 'land')
+        if containsMask(masks, 'land')
             mask = mask & land_mask;
-        elseif containsMask(regional_masks, 'ocean')
+        elseif containsMask(masks, 'ocean')
             mask = mask & ocean_mask;
         end
     end
