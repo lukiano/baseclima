@@ -46,16 +46,16 @@ function comparison_plot(scen, cvar_x, cvar_y, year, dif_20_x, dif_20_y, month, 
     
     legend(modelnames,'location','EastOutside');
     if dif_20_x == 1
-        xlabel([cvar_x '(diff with avg. 1975-2000)']);
+        xlabel([cvar_x '(diff with avg. 20th century values)']);
     elseif dif_20_x == 2
-        xlabel([cvar_x '(avg. 1975-2000)']);
+        xlabel([cvar_x '(avg. 20th century values)']);
     else
         xlabel(cvar_x);
     end
     if dif_20_y == 1
-        ylabel([cvar_y '(diff with avg. 1975-2000)']);
+        ylabel([cvar_y '(diff with avg. 20th century values)']);
     elseif dif_20_y == 2
-        ylabel([cvar_y '(avg. 1975-2000)']);
+        ylabel([cvar_y '(avg. 20th century values)']);
     else
         ylabel(cvar_y);
     end
