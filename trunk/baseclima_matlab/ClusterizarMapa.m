@@ -1,42 +1,54 @@
-function clusterInfo = ClusterizarMapa( sMap, clusters)
+function clusterInfo = ClusterizarMapa(sD, sMap, clusters)
 % Toma un SOM, genera un cluster y devuelve un arreglo que mapea neuronas a
 % clusters. La variable clusters puede ser 'auto', o un valor numerico
     % Primero se obtiene la informacion de clustering.
     sCl = som_cllinkage(sMap, 'linkage', 'ward');
 
-
-    %maxClusters = sMap.topol.msize(1) * sMap.topol.msize(2);
-
     if strcmp(clusters,'auto')
-        FIT_BEST_REGION_START = 4;
-        FIT_BEST_REGION_END = 11;
-
         ward = flipud(sCl.tree(:,3));
         ward = ward';
+        
         ward1 = (circshift(ward,[0 -1]));
         wardDif = (ward - ward1) ./ ward1;
+        
+        %ward1 = zeros(1, length(ward));
+        %for i = 2:length(ward1)
+        %    pos = (length(ward1) + 1)*2 - i;
+        %    index = find(sCl.tree(:, 1) == pos);
+        %    if isempty(index)
+        %        index = find(sCl.tree(:, 2) == pos);
+        %    end
+        %    parentWard = ward(length(ward) + 1 - index);
+        %    ward1(i) = parentWard;
+        %end
+        %wardDif = (ward1 - ward) ./ ward;
 
-        numOfClusters = FIT_BEST_REGION_START;
-        for i = FIT_BEST_REGION_START + 1:FIT_BEST_REGION_END
-            if (power(i,0.7) * wardDif(i) > power(numOfClusters,0.7) * wardDif(numOfClusters))
-                numOfClusters = i;
-            end
-        end
+        FIT_BEST_REGION_START = 4;
+        FIT_BEST_REGION_END = 18;
 
+        %numOfClusters = FIT_BEST_REGION_START;
+        
+        wardDifSegment = wardDif(FIT_BEST_REGION_START:FIT_BEST_REGION_END);
+        [ans, numOfClusters] = max(wardDifSegment);
+        numOfClusters = numOfClusters + FIT_BEST_REGION_START - 1;
+        %for i = FIT_BEST_REGION_START + 1:FIT_BEST_REGION_END
+        %    if stopFormula(i, wardDif) > stopFormula(numOfClusters, wardDif)
+        %        numOfClusters = i;
+        %    end
+        %end
+
+        figure;
+        m = createBarMatrix(wardDif(FIT_BEST_REGION_START:FIT_BEST_REGION_END), numOfClusters - FIT_BEST_REGION_START + 1);
+        bar(FIT_BEST_REGION_START:FIT_BEST_REGION_END, m, 'stacked');
+        colormap(jet);
+        
+        figure;
+        m = createBarMatrix(ward(FIT_BEST_REGION_START:FIT_BEST_REGION_END), numOfClusters - FIT_BEST_REGION_START + 1);
+        bar(FIT_BEST_REGION_START:FIT_BEST_REGION_END, m, 'stacked');
+        colormap(jet);
+        
         disp('Number of clusters: ');
         disp(numOfClusters);
-    end
-
-    if strcmp(clusters,'showGraph')
-        ward = flipud(sCl.tree(:,3));
-        ward = ward';
-        ward1 = (circshift(ward,[0 -1]));
-        wardDif = (ward - ward1) ./ ward1;
-        figure;
-        bar(4:20, wardDif(4:20));
-        figure;
-        bar(4:20, ward(4:20));
-        numOfClusters = 6;
     end
 
     % Number of clusters is fixed.
@@ -59,6 +71,19 @@ function clusterInfo = ClusterizarMapa( sMap, clusters)
     sCl.color(ones, :) = jet(numOfClusters);
     sCl.color(twos, :) = 0.5;
     som_clplot(sCl, 'dendrogram', dendo);
+end
+
+function f = stopFormula(i, wardDif)
+    %f = power(i, 2) * wardDif(i);
+    f = wardDif(i);
+end
+
+function m = createBarMatrix(ward, shiftIndex)
+
+    len = length(ward);
+    m = [ward', zeros(len, 1)];
+    m(shiftIndex, 2) = m(shiftIndex, 1);
+    m(shiftIndex, 1) = 0;
 end
 
 function [clusterMap, bits] = buildClusterMap(sCl, numOfClusters)
@@ -132,4 +157,3 @@ function weight = calculateChildrenWeight(tree, node, treesize)
     rightChild = tree(node, 2);
     weight = treesize - min([leftChild, rightChild]);
 end
-
