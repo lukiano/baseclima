@@ -58,7 +58,7 @@ function big_range_data = create_big_range_data(big_data, gridpoints, use_range)
     for i = 1:length(gridpoints)
         d1 = gridpoints(i);
         differences_slice = squeeze(big_data(d1, :));
-        if use_range == 1
+        if use_range == 0
             big_range_data(i, :) = differences_slice;
         else
             [sorted_slice, indices] = sort(differences_slice);
