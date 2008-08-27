@@ -41,9 +41,10 @@ nbmod = size(smoothed_years, 1);
 avg = zeros(nbmod, 1);
 year_avg = zeros(nbmod, 1);
 year_1987 = 1987 - years(1); % 1987 is avg of 1975-2000
+year_1976 = 1976 - years(1); % 1976 is avg of 1961-1990 (IPCC)
 year_2087 = 2087 - years(1); % 2087 is avg of 2075-2100
 for i = 1:nbmod
-    year_n_degree = find(smoothed_years(i,:) >= smoothed_years(i,year_1987) + n_degree & smoothed_years(i,:));
+    year_n_degree = find(smoothed_years(i,:) >= smoothed_years(i,year_1976) + n_degree & smoothed_years(i,:));
     if isempty(year_n_degree)
         avg(i) = -1;
     elseif year_n_degree(1) > year_2087
