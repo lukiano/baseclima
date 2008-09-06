@@ -1,6 +1,6 @@
 %Made by Luciano, so you know whom to address for errors.
 
-function ipccmodel_meansc_diff_ndegree_model20_latitudes(scen, cvar, ndegree, month)
+function ipccmodel_meansc_diff_ndegree_model20_latitudes(scen, cvar, ndegree, year20, month)
 dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
 if (dirString == 0)
@@ -32,7 +32,7 @@ else
         struc_Sresa2 = load(fullname, 'model');
         model_name = struc_Sresa2.model;
         fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_' run '_' num2str(ndegree) 'degree.mat']);
-        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_per2.mat']);
+        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_year' num2str(year20) '.mat']);
         do_diff_model21_model20(fullname21, fullname20, month, colors{contador});
         models{contador} = model_name;
         models{contador} = regexprep(models{contador},'\_','\\_');

@@ -2,7 +2,7 @@
 
 %Displays one map for each model. The map is the difference between
 % 'mean model data in 2075-2100' and 'mean model data in 1975-2000'
-function ipccmodel_meansc_diff_ndegree_model20(scen, cvar, ndegree, month)
+function ipccmodel_meansc_diff_ndegree_model20(scen, cvar, ndegree, year20, month)
 dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
 if (dirString == 0)run = get_run(tn{1});
@@ -27,7 +27,7 @@ else
         struc_Sresa2 = load(fullname, 'model');
         model_name = struc_Sresa2.model;
         fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_' run '_' num2str(ndegree) 'degree.mat']);
-        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_per2.mat']);        
+        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_year' num2str(year20) '.mat']);        
         do_diff_model21_model20(cvar, fullname21, fullname20, model_name, month, ndegree);
     end
 end

@@ -3,7 +3,7 @@
 %Displays one map for each model. The map is the difference between
 % 'mean model data in 1975-2000' and real observations in that period.
 
-function ipccmodel_meansc_diff_model_20c3m(cvar, month)
+function ipccmodel_meansc_diff_model_20c3m(cvar, year20, month)
 dirString = uigetdir('/Users/Shared','Choose data directory');
 if (dirString == 0)
     % no directory was chosen, exit program
@@ -26,7 +26,7 @@ else
         run = get_run(tn{1});
         struc_Sresa2 = load(fullname, 'model');
         model_name = struc_Sresa2.model;
-        fullname = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_per2.mat']);
+        fullname = fullfile(dirString, [cvar '_20c3m_' model_name '_year' num2str(year20) '.mat']);
         do_diff_model_20c3m(cvar, fullname, model_name, month);
     end
 end

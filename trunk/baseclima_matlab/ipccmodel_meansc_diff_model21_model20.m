@@ -2,7 +2,7 @@
 
 %Displays one map for each model. The map is the difference between
 % 'mean model data in year+-12' and 'mean model data in 1975-2000'
-function ipccmodel_meansc_diff_model21_model20(scen, cvar, month, year)
+function ipccmodel_meansc_diff_model21_model20(scen, cvar, month, year21, year20)
 dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
 
@@ -13,7 +13,7 @@ else
     files = dir(dirString); % obtain file names
     names = transpose({files.name});
     % only retain those file names we are interested in
-    rexp = regexp(names, [cvar '_' scen '_.*_year' num2str(year) '.mat']);
+    rexp = regexp(names, [cvar '_' scen '_.*_year' num2str(year21) '.mat']);
     contador = 1;
     truenames = cell(0);
     for i = 1:length(rexp)
@@ -27,8 +27,8 @@ else
         struc_Sresa2 = load(fullname, 'model');
         run = get_run(tn{1});
         model_name = struc_Sresa2.model;
-        fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_' run '_year' num2str(year) '.mat']);
-        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_per2.mat']);        
+        fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_' run '_year' num2str(year21) '.mat']);
+        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_year' num2str(year20) '.mat']);        
         do_diff_model21_model20(cvar, fullname21, fullname20, model_name, month);
     end
 end

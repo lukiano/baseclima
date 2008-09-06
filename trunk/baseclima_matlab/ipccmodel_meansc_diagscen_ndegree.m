@@ -1,6 +1,6 @@
 %Modified by Luciano. TODO: javadoc
 
-function ipccmodel_meansc_diagscen_ndegree(scen, cvar, ndegree)
+function ipccmodel_meansc_diagscen_ndegree(scen, cvar, ndegree, year20)
 
 % this program reads the matlab files del ciclo estacional de todos los
 % modelos y crea un archivo global de todos los modelos incluyendo varios
@@ -62,7 +62,7 @@ fmod=zeros(nbmod,12,72,144);
         % Now read the 20c3m file
         runs=dir(['/Users/Shared/IPCC/20c3m_atm_mo_' cvar '/' model '/run*']);
         run=runs(1).name;
-        filein=[datadirout cvar '_20c3m_' model '_' run '_per2.mat' ];
+        filein=[datadirout cvar '_20c3m_' model '_' run '_year' num2str(year20) '.mat' ];
         load(filein,'x','y','data');
         fmod(imod,:,:,:) = data1 - data;
 

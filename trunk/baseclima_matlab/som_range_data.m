@@ -32,17 +32,8 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
     gridpoints(indices) = [];
     big_range_data(indices,:) = [];
     
-    models_length = size(big_range_data, 2);
-
     %normalize
-    mean_data = mean(big_range_data, 2);
-    std_data = std(big_range_data, 0, 2);
-    num_models = size(big_range_data, 2);
-    mean_data = repmat(mean_data, 1, num_models);
-    std_data = repmat(std_data, 1, num_models);
-    big_range_data = big_range_data - mean_data;
-    big_range_data = big_range_data ./ std_data;
-    %end normalize
+    big_range_data = normalizeData(big_range_data);
     
     sD = som_data_struct(big_range_data);
     
@@ -56,29 +47,15 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
     %som_show(sMap);
     
     %generate automatic classification
-    
-    clusterInfo = ClusterizarMapa(sMap, numOfClusters);
-    %return;
+    clusterInfo = ClusterizarMapa(sD, sMap, numOfClusters);
     clusterMap = clusterInfo.clusterMap;
-    numOfClusters = clusterInfo.numOfClusters;
+    number_of_clusters = clusterInfo.numOfClusters;
+    number_of_neurons = size(sMap.codebook, 1);
+    number_of_models = size(big_range_data, 2);
 
-%    sC = som_cllinkage(sMap,'ward');
-%    figure; %show classification tree
-%    som_clplot(sC);
+    points = 1:size(big_range_data, 1);
+    models_activated = fillCluster(points, number_of_models, big_range_data)
     
-    models_activated = cell(0);
-    total = size(big_range_data, 1);
-    models_activated(1) = {[0, 100, mean(1:num_models)]};
-    for i = 1:models_length
-        model_slice = squeeze(big_range_data(:,i));
-        value = mean(model_slice);
-        models_activated(i+1) = {[i, 0, value]};
-    end
-    models_activated = mysort(models_activated, 2);
-    
-    cellToMatrix(models_activated)
-    %celldisp(models_activated);
-
     [Bmus, Qerrors] = som_bmus(sMap, sD);
     % 'Bmus' knows which neuron owns each grid point.
     
@@ -93,90 +70,51 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
         BmusTwoDims(dim1, dim2) = Cmus(i);
     end
     
-    ShowingMUS = Cmus; %Bmus
-    numColors = numOfClusters; %size(sMap.codebook, 1)
-    
-    display_neurons_in_world_map(numColors, x, y, dims, gridpoints, ShowingMUS);
+    display_neurons_in_SA_map(number_of_clusters, x, y, dims, gridpoints, Cmus);
+    %display_neurons_in_SA_map(number_of_neurons, x, y, dims, gridpoints, Bmus);
 
-    %Find out which model has a significance in each neuron.
-    cluster_models = cell(0);
-    for i = 1:numOfClusters %total_neurons
-        points = find(Cmus == i);
-        totalPointsSize = length(points);
-        if totalPointsSize == 0
-            %no grid points belong to this neuron
-            cluster_models(i) = {[]};
-        else
-            
-            models_activated = cell(0);
-            total = totalPointsSize;
-            models_activated(1) = {[0, 100, mean(1:num_models)]};
-            for j = 1:models_length
-                model_slice = squeeze(big_range_data(:,j));
-                summ = mean(model_slice(points));
-                %summ = 0;
-                %for k = 1:length(points)
-                %    if model_slice(points(k)) == 1
-                %        summ = summ + 1;
-                %    end
-                %end
-                models_activated(j+1) = {[j, 0, summ]};
-            end
-            models_activated = mysort(models_activated, 2);
-            cluster_models(i) = {models_activated};
-            
-            
-%             totalPositivePointsActivated = zeros(models_length);
-%             totalNegativePointsActivated = zeros(models_length);
-%             for j = 1:length(points)
-%                 for k = 1:models_length
-%                     if big_range_data(points(j), k) == 1
-%                         totalPositivePointsActivated(k) = totalPositivePointsActivated(k) + 1;
-%                     elseif big_range_data(points(j), k) == -1
-%                         totalNegativePointsActivated(k) = totalNegativePointsActivated(k) + 1;
-%                     end
-%                 end
-%             end
-%             avg = 6; %floor(25 * models_length / 100) / models_length;
-%             
-%             
-%             %TODO: probar de leer para los valores negativos y comparar con
-%             %-3/14 (o -4/14) y ver que modelos quedan. Luego hacer lo mismo
-%             %para los valores positivos.
-%             
-%             % probar con Scatterplot para ver relacion entre precip y temp.
-%             % Probar con 3 dimensiones: grilla x modelo x [t p]
-%             % Probar con [x y temp precip] donde cada muestra es un punto
-%             % de grilla de un modelo, o sea que la cantidad de muestras
-%             % serian 72x144x14 (menos los NaN).
-%             
-%             models = [];
-%             for k = 1:models_length
-%                 [phatPos, pciPos] = binofit(totalPositivePointsActivated(k), totalPointsSize);
-%                 %[phatNeg, pciNeg] = binofit(totalNegativePointsActivated(k), totalPointsSize);
-%                 %if (phatPos > avg && pciPos(1) > avg) || (phatNeg > avg && pciNeg(1) > avg)
-%                 if (phatPos > avg && pciPos(1) > avg)
-%                     models = [models, k];
-%                 end
-%             end
-%             cluster_models(i) = {models};
-        end
-    end
-    
+    cluster_models = getClusterModels(number_of_clusters, Cmus, big_range_data, number_of_models);
+   
     %display on console
+    cluster_models
+    
+    %neuron_models = getClusterModels(number_of_neurons, Bmus, big_range_data, number_of_models);
 
-    %celldisp(cluster_models);
-    
-    for i = 1:length(cluster_models)
-        cluster_models{i} = cellToMatrix(cluster_models{i});
-    end
-    %display on map
-    %display_neurons_data_differences_in_world_map(tas_big_data, total_neurons, x, y, dims, gridpoints, Bmus, cluster_models);
-    
+    %display on console
+    %neuron_models
+
     cluster_masks = bmusToMasks(BmusTwoDims);
     
-    fileout = [scen '_' cvar '_' num2str(numOfClusters) 'cluster_data_' num2str(month) '_' modeltype '.mat'];
+    fileout = [scen '_' cvar '_' num2str(number_of_clusters) 'cluster_data_' num2str(month) '_' modeltype '.mat'];
     save(fileout,'sD', 'sMap', 'cluster_models', 'cluster_masks');
+end
+
+function cluster_models = getClusterModels(number_of_clusters, Cmus, big_range_data, num_models)
+    %Find out which model has a significance in each or cluster
+    cluster_models = NaN(num_models + 1, 3, number_of_clusters);
+    for i = 1:number_of_clusters
+        points = find(Cmus == i);
+        cluster_models(:,:,i) = fillCluster(points, num_models, big_range_data);
+    end
+end
+
+function m = fillCluster(points, num_models, big_range_data)
+    totalPointsSize = length(points);
+    if totalPointsSize == 0
+        %no grid points belong to this cluster
+        m = NaN(num_models + 1, 3);
+        m(1,:) = [0, 100, mean(1:num_models)];
+    else
+        models_activated = NaN(num_models + 1, 3);
+        models_activated(1,:) = [0, 100, mean(1:num_models)];
+        for j = 1:num_models
+            model_slice = squeeze(big_range_data(:,j));
+            summ = mean(model_slice(points));
+            models_activated(j+1, :) = [j, 0, summ];
+        end
+        models_activated = mysort(models_activated, 3);
+        m = models_activated;
+    end
 end
 
 function cluster_masks = bmusToMasks(BmusTwoDims)
@@ -186,6 +124,17 @@ function cluster_masks = bmusToMasks(BmusTwoDims)
     for i = 1:length(clusters)
         cluster_masks(i, find(BmusTwoDims == clusters(i))) = 1;
     end
+end
+
+function big_range_data = normalizeData(big_range_data)
+    mean_data = mean(big_range_data, 2);
+    std_data = std(big_range_data, 0, 2);
+    num_models = size(big_range_data, 2);
+    
+    mean_data = repmat(mean_data, 1, num_models);
+    std_data = repmat(std_data, 1, num_models);
+    big_range_data = big_range_data - mean_data;
+    big_range_data = big_range_data ./ std_data;
 end
 
 function display_neurons_in_world_map(total_neurons, x, y, dims, gridpoints, Bmus)
@@ -201,12 +150,12 @@ function display_neurons_in_world_map(total_neurons, x, y, dims, gridpoints, Bmu
     
     for i = 1:length(gridpoints)
        [dim1, dim2] = index2grid(gridpoints(i), dims);
-        BmusTwoDims(dim1, dim2) = Bmus(i);
+        BmusTwoDims(dim1, dim2) = Bmus(i) - 1;
     end
     
     BmusTwoDims=circshift(BmusTwoDims, [0 72]);
     
-    cmin = 1;
+    cmin = 0;
     cmax = total_neurons + cmin;
     ncol = total_neurons; %one color for each neuron.
 
@@ -250,75 +199,57 @@ function display_neurons_in_world_map(total_neurons, x, y, dims, gridpoints, Bmu
     drawnow;
 end
 
-function display_neurons_data_differences_in_world_map(big_data, total_neurons, x, y, dims, gridpoints, Bmus, cluster_models)
-    load coast_world;
+function display_neurons_in_SA_map(total_neurons, x, y, dims, gridpoints, Bmus)
+    load coast_sa;
 
+    % Begin southamerica map drawing...
+    x=circshift(x,[72 1]);
+    x(1:72)=x(1:72)-360;
+    x = x - 0.5;
     [plon,plat] = meshgrid(x,y);
-    for i = 1:length(cluster_models)
-        neuron = cluster_models(i);
-        neuron_values = Bmus;
-        neuron_values(find(Bmus ~= i)) = NaN;
-        for models = neuron
-            models = models{1};
-            for j = 1:length(models)
-                figure; %a4l;
-                map_global; 
-                tightmap;
-                
-                data = NaN(length(y), length(x));
-                for k = 1:length(gridpoints)
-                    if ~isnan(neuron_values(k))
-                        [dim1, dim2] = index2grid(gridpoints(k), dims);
-                        data(dim1, dim2) = big_data(gridpoints(k), models(j));
-                    end
-                end
-                cmin = squeeze(min(min(data)));
-                cmax = squeeze(max(max(data)));
-                ncol = 20;
-                title ([ 'neuron ' num2str(i) ' - model ' num2str(models(j)) ]);
-                pcolorm(plat, plon, data);
-                caxis([cmin, cmax+1]);
-                cmap=colormap(jet(ncol)); % set N. of colors.
-                colormap(cmap);
-                colorbar('horizon');
-                %shading interp;
-                hold on;
-                % Re-Draw the map
-                if (worldMap == 1)
-                    plotm(latW, lonW, 'k');
-                else
-                    plotm(latsa, lonsa, 'k');
-                end
-                hold on;
-                drawnow;
-            end
-        end
+    
+    BmusTwoDims = NaN(length(y), length(x));
+    
+    for i = 1:length(gridpoints)
+       [dim1, dim2] = index2grid(gridpoints(i), dims);
+        BmusTwoDims(dim1, dim2) = Bmus(i) - 1;
     end
+    
+    BmusTwoDims=circshift(BmusTwoDims, [0 72]);
+    
+    cmin = 0;
+    cmax = total_neurons + cmin;
+    ncol = total_neurons; %one color for each neuron.
+
+    figure; %a4l;
+    map_sa;
+    tightmap;
+    title ('all neurons');
+    pcolorm(plat, plon, BmusTwoDims);
+    caxis([cmin, cmax]);
+    cmap=colormap(jet(ncol)); % set N. of colors.
+    colormap(cmap);
+    colorbar('horizon');
+    %shading interp;
+    hold on;
+    % Re-Draw the map
+    plotm(latsa, lonsa, 'k');
+    hold on;
+    drawnow;
 end
 
-function m = dobleCellToMatrix(cell_with_cell)
-    m = [];
-    for i = 1:length(cell_with_cell)
-        z = zeros(size(m,1),1);
-        m = [m, z, cellToMatrix(cell_with_cell{i})];
-    end
+function matrix = mysort(matrix, column)
+    matrix = sortrows(matrix, -column);
 end
 
-function m = cellToMatrix(cell_with_array)
-    m = [];
-    for i = 1:length(cell_with_array)
-        m(i,:) = cell_with_array{i};
-    end
-end
-
-function cell_with_array = mysort(cell_with_array, array_column)
-    if length(cell_with_array) > 1
-        for i = fliplr(2:length(cell_with_array))
+function matrix = mysort2(matrix, column)
+    if size(matrix, 1) > 1
+        for i = fliplr(2:size(matrix, 1))
             for j = 2:i
-                if cell_with_array{j}(array_column) > cell_with_array{j-1}(array_column)
-                    tmp = cell_with_array{j};
-                    cell_with_array{j} = cell_with_array{j-1};
-                    cell_with_array{j-1} = tmp;
+                if matrix(j, column) > matrix(j-1, column)
+                    tmp = matrix(j, :);
+                    matrix(j, :) = matrix(j-1, :);
+                    matrix(j-1, :) = tmp;
                 end
             end
         end
@@ -356,9 +287,9 @@ function indices = setMasks(masks, gridpoints, dims)
             end
         end
         if containsMask(masks, 'land')
-            mask = mask & land_mask;
+            finalmask = finalmask & land_mask;
         elseif containsMask(masks, 'ocean')
-            mask = mask & ocean_mask;
+            finalmask = finalmask & ocean_mask;
         end
     end
     indices = [];
