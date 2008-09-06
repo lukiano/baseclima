@@ -1,8 +1,8 @@
 %Made by Luciano, so you know whom to address for errors.
 
-function clusters_value = ipccmodel_meansc_clusters_model21_model20(scen, cvar, month, year, numclusters)
-dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
-%dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
+function clusters_value = ipccmodel_meansc_clusters_model21_model20(scen, cvar, month, year21, year20, numclusters)
+%dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
+dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
 
 if (dirString == 0)
     % no directory was chosen, exit program
@@ -28,8 +28,8 @@ else
         fullname = fullfile(dirString, tn{1});
         struc_Sresa2 = load(fullname, 'model');
         model_name = struc_Sresa2.model;
-        fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_run1_year' num2str(year) '.mat']);
-        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_run1_per2.mat']);        
+        fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_run1_year' num2str(year21) '.mat']);
+        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_run1_year' num2str(year20) '.mat']);        
         clusters_value(contador, :) = do_diff_model21_model20(fullname21, fullname20, model_name, month, Cmus, numclusters);
         contador = contador + 1;
     end

@@ -1,14 +1,29 @@
 %Made by Luciano, so you know whom to address for errors.
 
-function comparison_plot(scen, cvar_x, cvar_y, year, dif_20_x, dif_20_y, month, regional_masks, cluster_filename, cluster_number_mask)
+%scen: 'sresa2' or 'sresa1b'
+%cvar_x: 'tas', 'pr' or 'sic'
+%cvar_y: 'tas', 'pr' or 'sic'
+%year21: average centered year of 21th century
+%year20: average centered year of 20th century
+%type_x:
+%1) absolute 21th century values
+%2) difference between 21th century and 20th century values
+%3) absolute 20th century values
+%4) difference between 20th century and observed values (same period)
+%type_y: same as type_x for y axis
+%month 0: annual mean; 1 - 12: actual month
+%regional_masks: cell array with string with mask names. Ex: {'southamerica','africa'}
+%cluster_filename: name of file created by som_range_data to be used for cluster masks
+%cluster_number_mask: number of the cluster to be used as a mask
+function comparison_plot(scen, cvar_x, cvar_y, year21, year20, type_x, type_y, month, regional_masks, cluster_filename, cluster_number_mask)
     dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
     %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
     if (dirString == 0)
         % no directory was chosen, exit program
         return;
     end
-    [big_data_x, modelnames_x] = create_big_data(scen, cvar_x, dirString, month, year, dif_20_x);
-    [big_data_y, modelnames_y] = create_big_data(scen, cvar_y, dirString, month, year, dif_20_y);
+    [big_data_x, modelnames_x] = create_big_data(scen, cvar_x, dirString, month, year21, year20, type_x);
+    [big_data_y, modelnames_y] = create_big_data(scen, cvar_y, dirString, month, year21, year20, type_y);
     if length(modelnames_x) ~= length(modelnames_y)
         'Cvar X has not the same models as Cvar Y'
         return;
@@ -45,16 +60,16 @@ function comparison_plot(scen, cvar_x, cvar_y, year, dif_20_x, dif_20_y, month, 
     end
     
     legend(modelnames,'location','EastOutside');
-    if dif_20_x == 1
+    if type_x == 1
         xlabel([cvar_x '(diff with avg. 20th century values)']);
-    elseif dif_20_x == 2
+    elseif type_x == 2
         xlabel([cvar_x '(avg. 20th century values)']);
     else
         xlabel(cvar_x);
     end
-    if dif_20_y == 1
+    if type_y == 1
         ylabel([cvar_y '(diff with avg. 20th century values)']);
-    elseif dif_20_y == 2
+    elseif type_y == 2
         ylabel([cvar_y '(avg. 20th century values)']);
     else
         ylabel(cvar_y);
@@ -157,11 +172,11 @@ function ret = containsMask(masks, masknameString)
     ret = sum(strcmp(masks, masknameString)) > 0;
 end
 
-function [big_data, modelnames] = create_big_data(scen, cvar, dirString, month, year, dif_20)
+function [big_data, modelnames] = create_big_data(scen, cvar, dirString, month, year21, year20, type)
     files = dir(dirString); % obtain file names
     names = transpose({files.name});
     % only retain those file names we are interested in
-    rexp = regexp(names, [cvar '_' scen '_.*_year' num2str(year) '.mat']);
+    rexp = regexp(names, [cvar '_' scen '_.*_year' num2str(year21) '.mat']);
     contador = 1;
     truenames = cell(0);
     for i = 1:length(rexp)
@@ -190,8 +205,12 @@ function [big_data, modelnames] = create_big_data(scen, cvar, dirString, month, 
         modelnames(contador) = {struc_Sresa2.model};
         contador = contador + 1;
         
-        if dif_20 == 1
-            fullname = fullfile(dirString, [cvar '_20c3m_' struc_Sresa2.model '_run1_per2.mat']);
+        if type == 1 %21 century
+            %add variable as a new dimension of big_data
+            big_data = cat(3, big_data, sresa2_data);
+            clear sresa2_data;
+        elseif type == 2 % diff between 21 and 20 century
+            fullname = fullfile(dirString, [cvar '_20c3m_' struc_Sresa2.model '_run1_year' num2str(year20) '.mat']);
             % c3m_data is 12 x LATS x LONS
             struc_20c3m = load(fullname, 'data');
             c3m_data = struc_20c3m.data;
@@ -205,8 +224,22 @@ function [big_data, modelnames] = create_big_data(scen, cvar, dirString, month, 
             big_data = cat(3, big_data, data_difference);
             clear sresa2_data;
             clear c3m_data;
-        elseif dif_20 == 2
-            fullname = fullfile(dirString, [cvar '_20c3m_' struc_Sresa2.model '_run1_per2.mat']);
+        elseif type == 3 % 20 century
+            fullname = fullfile(dirString, [cvar '_20c3m_' struc_Sresa2.model '_run1_year' num2str(year20) '.mat']);
+            % c3m_data is 12 x LATS x LONS
+            struc_20c3m = load(fullname, 'data');
+            c3m_data = struc_20c3m.data;
+            if (month == 0)
+                c3m_data = squeeze(mean(c3m_data, 1));
+            else
+                c3m_data = squeeze(c3m_data(month, :, :));
+            end
+            %add variable as a new dimension of big_data
+            big_data = cat(3, big_data, c3m_data);
+            clear sresa2_data;
+            clear c3m_data;
+        elseif type == 4 % diff between 20 century and obs values
+            fullname = fullfile(dirString, [cvar '_20c3m_' struc_Sresa2.model '_run1_year' num2str(year20) '.mat']);
             % c3m_data is 12 x LATS x LONS
             struc_20c3m = load(fullname, 'data');
             c3m_data = struc_20c3m.data;
@@ -220,9 +253,7 @@ function [big_data, modelnames] = create_big_data(scen, cvar, dirString, month, 
             clear sresa2_data;
             clear c3m_data;
         else
-            %add variable as a new dimension of big_data
-            big_data = cat(3, big_data, sresa2_data);
-            clear sresa2_data;
+            ['error! Unrecognized type: ' type]
         end
     end
 end
