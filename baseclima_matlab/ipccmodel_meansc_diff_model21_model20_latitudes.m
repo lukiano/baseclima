@@ -1,6 +1,6 @@
 %Made by Luciano, so you know whom to address for errors.
 
-function ipccmodel_meansc_diff_model21_model20_latitudes(scen, cvar, year, month)
+function ipccmodel_meansc_diff_model21_model20_latitudes(scen, cvar, year21, year20, month)
 dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
 if (dirString == 0)
@@ -10,7 +10,7 @@ else
     files = dir(dirString); % obtain file names
     names = transpose({files.name});
     % only retain those file names we are interested in
-    rexp = regexp(names, [cvar '_' scen '_.*_year' num2str(year) '.mat']);
+    rexp = regexp(names, [cvar '_' scen '_.*_year' num2str(year21) '.mat']);
     contador = 1;
     truenames = cell(0);
     for i = 1:length(rexp)
@@ -32,8 +32,8 @@ else
         run = get_run(tn{1});
         struc_Sresa2 = load(fullname, 'model');
         model_name = struc_Sresa2.model;
-        fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_' run '_year' num2str(year) '.mat']);
-        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_per2.mat']);
+        fullname21 = fullfile(dirString, [cvar '_' scen '_' model_name '_' run '_year' num2str(year21) '.mat']);
+        fullname20 = fullfile(dirString, [cvar '_20c3m_' model_name '_' run '_year' num2str(year20) '.mat']);
         [meanlat, y] = do_diff_model21_model20(fullname21, fullname20, month, colors{contador});
         mean_lat(contador, :) = meanlat;
         models{contador} = model_name;

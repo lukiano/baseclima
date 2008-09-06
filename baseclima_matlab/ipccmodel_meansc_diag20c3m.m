@@ -1,4 +1,4 @@
-function ipccmodel_meansc_diag20c3m(cvar)
+function ipccmodel_meansc_diag20c3m(cvar, year20)
 
 % this program reads the matlab files del ciclo estacional de todos los
 % modelos y crea un archivo global de todos los modelos incluyendo varios
@@ -33,7 +33,7 @@ for imod=1:nbmod
     model=models(imod).name
     runs=dir(['/Users/jpb/Data/IPCC/20c3m_atm_mo_' cvar '/' model '/run*']);
     run=runs(1).name;
-    filein=[datadirout cvar '_20c3m_' model '_' run '_per2.mat' ];
+    filein=[datadirout cvar '_20c3m_' model '_' run '_year' num2str(year20) '.mat' ];
     load(filein,'x','y','data','npi','npj');
     fmod(imod,:,:,:)=data-fobs;
 end

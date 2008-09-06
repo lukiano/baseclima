@@ -1,6 +1,6 @@
 %Modified by Luciano. TODO: javadoc
 
-function ipccmodel_meansc_diagscen(scen, cvar, year)
+function ipccmodel_meansc_diagscen(scen, cvar, year21, year20)
 
 % this program reads the matlab files del ciclo estacional de todos los
 % modelos y crea un archivo global de todos los modelos incluyendo varios
@@ -27,14 +27,14 @@ fmod=zeros(nbmod,12,72,144);
         model=models(imod).name
         runs=dir(['/Users/Shared/IPCC/20c3m_atm_mo_' cvar '/' model '/run*']);
         run=runs(1).name;
-        filein=[datadirout cvar '_20c3m_' model '_' run '_per2.mat' ];
+        filein=[datadirout cvar '_20c3m_' model '_' run '_year' num2str(year20) '.mat' ];
         load(filein,'x','y','data');
         data1=data;
 
 % Now read the model projections
         runs=dir(['/Users/Shared/IPCC/' scen '_atm_mo_' cvar '/' model '/run*']);
         run=runs(1).name;
-        filein=[datadirout cvar '_' scen '_' model '_' run '_year' num2str(year) '.mat' ];
+        filein=[datadirout cvar '_' scen '_' model '_' run '_year' num2str(year21) '.mat' ];
         load(filein,'x','y','data');
         fmod(imod,:,:,:)=data-data1;
         
@@ -112,7 +112,7 @@ fmod=zeros(nbmod,12,72,144);
     end
     
     datadirout = '';
-    fileout=[datadirout cvar '_' scen '_year' num2str(year) '.mat' ];
+    fileout=[datadirout cvar '_' scen '_year' num2str(year21) '.mat' ];
     save(fileout,'nbmod','x','y','npi','npj','models','fmod','fmodm','fmodsc',...
                  'fmoddiagm','fmoddiagsc');
 
