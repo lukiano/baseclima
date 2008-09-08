@@ -1,20 +1,18 @@
 %Made by Luciano, so you know whom to address for errors.
 
 %month 0: annual mean; 1 - 12: actual month
-%difftype -1: "1975-2000 (model)" - "1975-2000 (obs)"
-% n >= 1000 : "12-n+12 (model)" - "1975-2000 (model)"
-% 1 >= n > 1000: "n degree (model)" - "1975-2000 (model)"
+%difftype:
+% n >= 1000 : "12-n+12 (model)" - "around year20 year(model)"
+% 1 >= n > 1000: "n degree (model)" - "around year20 year (model)"
 %masks: cell array with string with mask names. Ex: {'southamerica','africa'}
 %msize: neuron map size (two dimensional)
 %numOfClusters: number of clusters; 'auto'
-function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, month, difftype, masks, msize, numOfClusters)
+function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, month, difftype, year20, masks, msize, numOfClusters)
     
-    if difftype < 0
-        modeltype = '20th-_obs';
-    elseif difftype >= 1000
-        modeltype = ['21th-Year' num2str(difftype) '-_20th'];
+    if difftype >= 1000
+        modeltype = ['Year' num2str(difftype) '-Year' num2str(year20)];
     else
-        modeltype = ['21th-Degree' num2str(difftype) 'deg-_20th'];
+        modeltype = ['Degree' num2str(difftype) '-_Year' num2str(year20)];
     end
 
     load([scen '_' cvar '_range_data_' num2str(month) '_' modeltype '.mat'], 'big_data', 'gridpoints', 'dims', 'big_range_data');
@@ -47,7 +45,7 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
     %som_show(sMap);
     
     %generate automatic classification
-    clusterInfo = ClusterizarMapa(sD, sMap, numOfClusters);
+    clusterInfo = ClusterizarMapa(sMap, numOfClusters);
     clusterMap = clusterInfo.clusterMap;
     number_of_clusters = clusterInfo.numOfClusters;
     number_of_neurons = size(sMap.codebook, 1);

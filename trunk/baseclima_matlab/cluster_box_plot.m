@@ -1,83 +1,33 @@
-%Made by Luciano, so you know whom to address for errors.
-
-%scen: 'sresa2' or 'sresa1b'
-%cvar_x: 'tas', 'pr' or 'sic'
-%cvar_y: 'tas', 'pr' or 'sic'
-%year21: average centered year of 21th century
-%year20: average centered year of 20th century
-%type_x:
-%1) absolute 21th century values
-%2) difference between 21th century and 20th century values
-%3) absolute 20th century values
-%4) difference between 20th century and observed values (same period)
-%type_y: same as type_x for y axis
-%month 0: annual mean; 1 - 12: actual month
-%regional_masks: cell array with string with mask names. Ex: {'southamerica','africa'}
-%cluster_filename: name of file created by som_range_data to be used for cluster masks
-%cluster_number_mask: number of the cluster to be used as a mask
-function comparison_plot(scen, cvar_x, cvar_y, year21, year20, type_x, type_y, month, regional_masks, cluster_filename, cluster_number_mask)
+function cluster_box_plot(scen, cvar, year21, year20, month, type, regional_masks, cluster_filename, number_of_masks)
     dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
     %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
     if (dirString == 0)
         % no directory was chosen, exit program
         return;
     end
-    [big_data_x, modelnames_x] = create_big_data(scen, cvar_x, dirString, month, year21, year20, type_x);
-    [big_data_y, modelnames_y] = create_big_data(scen, cvar_y, dirString, month, year21, year20, type_y);
-    if length(modelnames_x) ~= length(modelnames_y)
-        'Cvar X has not the same models as Cvar Y'
-        return;
-    end
-    modelnames = cell(length(modelnames_x), 1);
-    for i = 1:length(modelnames_x)
-        if strcmp(modelnames_x{1}, modelnames_y{1}) == 0
-            'Cvar X has not the same models as Cvar Y'
-            return;
-        end    
-        modelnames{i} = regexprep(modelnames_x{i},'\_','\\_');
+    [big_data, modelnames_orig] = create_big_data(scen, cvar, dirString, month, year21, year20, type);
+    modelnames = cell(length(modelnames_orig), 1);
+    for i = 1:length(modelnames_orig)
+        modelnames{i} = regexprep(modelnames_orig{i},'\_','\\_');
     end
     
-    mask = getMasks(regional_masks, cluster_filename, cluster_number_mask);
-
-    sum_array_x = sum_data_norm(big_data_x, mask)
-    sum_array_y = sum_data_norm(big_data_y, mask)
-    
+    for i = 1:number_of_masks
+        mask = getMasks(regional_masks, cluster_filename, i);
+        sum_array(:, i) = sum_data_norm(big_data, mask)
+    end
     figure;
-    hold on
-    half = floor(length(modelnames_x) / 2);
-    quarter = floor(length(modelnames_x) / 4);
-    for i = 1:quarter
-        scatter(sum_array_x(i), sum_array_y(i));
-    end
-    for i = quarter+1:half
-        scatter(sum_array_x(i), sum_array_y(i), 'filled');
-    end
-    for i = half+1:half+quarter
-        scatter(sum_array_x(i), sum_array_y(i),'*');
-    end
-    for i = half+quarter+1:length(modelnames_x)
-        scatter(sum_array_x(i), sum_array_y(i),'+');
-    end
+    hold on;
+    boxplot(sum_array);
+    xlabel('Clusters');
     
-    legend(modelnames,'location','EastOutside');
-    if type_x == 1
-        xlabel([cvar_x ' (avg. year ' num2str(year21) ' values)']);
-    elseif type_x == 2
-        xlabel([cvar_x ' ' num2str(year21) ' - ' num2str(year20)]);
-    elseif type_x == 3
-        xlabel([cvar_x ' (avg. year ' num2str(year20) ' values)']);
-    elseif type_x == 4
-        xlabel([cvar_x ' ' num2str(year20) ' - obs ' num2str(year20)]);
-    end
-    
-    if type_y == 1
-        ylabel([cvar_y ' (avg. year ' num2str(year21) ' values)']);
-    elseif type_y == 2
-        ylabel([cvar_y ' ' num2str(year21) ' - ' num2str(year20)]);
-    elseif type_y == 3
-        ylabel([cvar_y ' (avg. year ' num2str(year20) ' values)']);
-    elseif type_y == 4
-        ylabel([cvar_y ' ' num2str(year20) ' - obs ' num2str(year20)]);
+    if type == 1
+        ylabel([cvar ' (avg. year ' num2str(year21) ' values)']);
+    elseif type == 2
+        ylabel([cvar ' ' num2str(year21) ' - ' num2str(year20)]);
+    elseif type == 3
+        ylabel([cvar ' (avg. year ' num2str(year20) ' values)']);
+    elseif type == 4
+        ylabel([cvar ' ' num2str(year20) ' - obs ' num2str(year20)]);
     end
     
     titulo = [scen ' - year:' num2str(year21)];
@@ -88,12 +38,12 @@ function comparison_plot(scen, cvar_x, cvar_y, year21, year20, type_x, type_y, m
         end
     end
     if ~isempty(cluster_filename)
-        titulo = [titulo ' - Cluster Mask:' num2str(cluster_number_mask)];
+        titulo = [titulo ' - Cluster Mask: ' cluster_filename];
     end
     title(titulo);
     grid on;
     hold off;
-    drawnow;
+    drawnow;   
 end
 
 function sum_array = sum_data(big_data, mask)
