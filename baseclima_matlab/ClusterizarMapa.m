@@ -1,4 +1,4 @@
-function clusterInfo = ClusterizarMapa(sD, sMap, clusters)
+function clusterInfo = ClusterizarMapa(sMap, clusters)
 % Toma un SOM, genera un cluster y devuelve un arreglo que mapea neuronas a
 % clusters. La variable clusters puede ser 'auto', o un valor numerico
     % Primero se obtiene la informacion de clustering.
@@ -41,7 +41,7 @@ function clusterInfo = ClusterizarMapa(sD, sMap, clusters)
         m = createBarMatrix(wardDif(FIT_BEST_REGION_START:FIT_BEST_REGION_END), numOfClusters - FIT_BEST_REGION_START + 1);
         bar(FIT_BEST_REGION_START:FIT_BEST_REGION_END, m, 'stacked');
         colormap(jet);
-        
+
         figure;
         m = createBarMatrix(ward(FIT_BEST_REGION_START:FIT_BEST_REGION_END), numOfClusters - FIT_BEST_REGION_START + 1);
         bar(FIT_BEST_REGION_START:FIT_BEST_REGION_END, m, 'stacked');
