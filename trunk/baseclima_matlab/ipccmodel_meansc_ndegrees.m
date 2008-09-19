@@ -4,10 +4,11 @@
 %cvar must be 'tas' to make sense
 %n_degree can be 1 or 2 degrees above average (3 goes beyond year 2100)
 %latitudes: border latitudes, uses both hemispheres
-function ipccmodel_meansc_ndegrees(scen, cvar, n_degree, latitudes)
+function ipccmodel_meansc_ndegrees(scen, cvar, n_degree, year20, latitudes)
     %construye el promedio de los puntos de la grilla del modelo para un
     %periodo de 25 anios centrado en aquel anio cuyo valor promedio anual
-    %es N grados mayor al valor promedio anual de los anios 1975-2000.
+    %es N grados mayor al valor promedio anual de los anios year20 
+    %(centrado 25 anios).
 
 if strcmp(scen,'20c3m') == 1
     'A 21th century scen is needed.'
@@ -19,8 +20,9 @@ if strcmp(cvar,'tas') == 0
     return;
 end
 
-dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
+%dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
+dirString = uigetdir('./modelos','Choose data directory');
 if (dirString == 0)
     % no directory was chosen, exit program
     return;
@@ -40,11 +42,12 @@ nbmod = size(smoothed_years, 1);
 
 avg = zeros(nbmod, 1);
 year_avg = zeros(nbmod, 1);
-year_1987 = 1987 - years(1); % 1987 is avg of 1975-2000
-year_1976 = 1976 - years(1); % 1976 is avg of 1961-1990 (IPCC)
-year_2087 = 2087 - years(1); % 2087 is avg of 2075-2100
+%year_1987 = 1987 - years(1); % 1987 is avg of 1975-2000
+%year_1976 = 1976 - years(1); % 1976 is avg of 1961-1990 (IPCC)
+year20 = year20 - years(1);
+year_2087 = 2087 - years(1); % 2087 is avg of 2075-2100 (max value)
 for i = 1:nbmod
-    year_n_degree = find(smoothed_years(i,:) >= smoothed_years(i,year_1976) + n_degree & smoothed_years(i,:));
+    year_n_degree = find(smoothed_years(i,:) >= smoothed_years(i,year20) + n_degree & smoothed_years(i,:));
     if isempty(year_n_degree)
         avg(i) = -1;
     elseif year_n_degree(1) > year_2087

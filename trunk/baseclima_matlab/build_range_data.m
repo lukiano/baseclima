@@ -7,7 +7,8 @@
 %use_range 0: put original values of models; 1: sort models and put their resulting rank
 function build_range_data(scen, cvar, month, difftype, year20, use_range) 
     %dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
-    dirString = uigetdir('c:\eclipse\workspace\baseclima_matlab','Choose data directory');
+    %dirString = uigetdir('c:\eclipse\workspace\baseclima_matlab','Choose data directory');
+    dirString = uigetdir('./modelos','Choose data directory');
     if (dirString == 0)
         % no directory was chosen, exit program
         return;
@@ -165,7 +166,7 @@ function [big_data, dims, modelnames] = create_big_data_diff_ndegree_model20(sce
         
         modelnames(contador) = {struc_Sresa2.model};
         contador = contador + 1;
-        fullname = fullfile(dirString, [cvar '_20c3m_' struc_Sresa2.model '_' run '_year' num2str(difftype) '.mat']);
+        fullname = fullfile(dirString, [cvar '_20c3m_' struc_Sresa2.model '_' run '_year' num2str(year20) '.mat']);
         
         % c3m_data is 12 x LATS x LONS
         struc_20c3m = load(fullname, 'data');

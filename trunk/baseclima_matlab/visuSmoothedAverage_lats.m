@@ -13,7 +13,7 @@ function visuSmoothedAverage_lats(cvar, common_models, latitudes)
    
    years = struct_sresa2.years;
    
-   indices = find(years >=1917 & years <= 2085);
+   indices = find(years >=1976 & years <= 2085);
    years = years(indices);
    
     sresa2_models = struct_sresa2.models;

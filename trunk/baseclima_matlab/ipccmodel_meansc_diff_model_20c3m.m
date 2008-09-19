@@ -4,7 +4,8 @@
 % 'mean model data in 1975-2000' and real observations in that period.
 
 function ipccmodel_meansc_diff_model_20c3m(cvar, year20, month)
-dirString = uigetdir('/Users/Shared','Choose data directory');
+%dirString = uigetdir('/Users/Shared','Choose data directory');
+dirString = uigetdir('./modelos','Choose data directory');
 if (dirString == 0)
     % no directory was chosen, exit program
     return;
@@ -12,7 +13,7 @@ else
     files = dir(dirString); % obtain file names
     names = transpose({files.name});
     % only retain those file names we are interested in
-    rexp = regexp(names, [cvar '_20c3m_.*_per2.mat']);
+    rexp = regexp(names, [cvar '_20c3m_.*_year' num2str(year20) '.mat']);
     contador = 1;
     truenames = cell(0);
     for i = 1:length(rexp)
@@ -26,15 +27,16 @@ else
         run = get_run(tn{1});
         struc_Sresa2 = load(fullname, 'model');
         model_name = struc_Sresa2.model;
-        fullname = fullfile(dirString, [cvar '_20c3m_' model_name '_year' num2str(year20) '.mat']);
-        do_diff_model_20c3m(cvar, fullname, model_name, month);
+        file_20c3m = fullfile(dirString, [cvar '_20c3m_' model_name '_run1_year' num2str(year20) '.mat']);
+        file_cru = fullfile(dirString, [cvar '_obs_cru_run1_year' num2str(year20) '.mat']);
+        do_diff_model_20c3m(cvar, file_20c3m, file_cru, model_name, month);
     end
 end
 
 return
 end
 
-function do_diff_model_20c3m(cvar, file_scen, model_name, month)
+function do_diff_model_20c3m(cvar, file_scen, file_cru, model_name, month)
 
 %load scen
 struc_scen = load(file_scen, 'data');
@@ -45,12 +47,13 @@ else
 end
     
 %load obs
-if strcmp(cvar, 'pr') == 1
-    filecmap='precip_7903_meansc.mat'; % Assume file is in the same directory.
+struc_cru = load(file_cru, 'data');
+if month == 0
+    data_cru = squeeze(mean(struc_cru.data, 1));
 else
-    filecmap='tempObs1975_2000.mat';
+    data_cru = squeeze(struc_cru.data(month,:,:));
 end
-load(filecmap, 'xgrid', 'ygrid', 'cmapsc');
+load(file_scen, 'x', 'y');
 
 %Friendly month title.
 titstr={'MEAN','JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'};
@@ -58,22 +61,14 @@ titstr={'MEAN','JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV'
 titlename = ['diff\_' regexprep(model_name,'\_','\\_') '\_20c3m\_' titstr{month+1}];
 
 %Variable aliasing.
-fobs = cmapsc;
-x = xgrid;
-y = ygrid;
-
-%Obtain data for the desired month.
-if month == 0
-    data_20c3m = squeeze(mean(fobs, 1));
-else
-    data_20c3m = squeeze(fobs(month,:,:));
-end
+%x = xgrid;
+%y = ygrid;
 
 %Do difference (model minus real data)
-data=data_scen - data_20c3m;
+data = data_scen - data_cru;
 
 %Handle NaNs
-jnan=find((data_20c3m) < 0 | isnan(data_scen) == 1);
+jnan=find((data_cru) < 0 | isnan(data_scen) == 1);
 data(jnan)=NaN;
 
 % Begin drawing...
@@ -107,7 +102,7 @@ hold on;
 drawnow
 
 %Save picture as PNG.
-eval(['print -dpng ' cvar '_diff_' model_name '_20c3m_' titstr{month+1}]);
+%eval(['print -dpng ' cvar '_diff_' model_name '_20c3m_' titstr{month+1}]);
 
 return
 end

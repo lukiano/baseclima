@@ -1,14 +1,16 @@
 %Modified by Luciano. TODO: document
 
 %Displays data built by 'ipccmodel_meansc_diagscen()'?
-function ipccmodel_meansc_visu(scen, cvar, year, month)
+function ipccmodel_meansc_visu(scen, cvar, year21, year20, month)
 
 % This program visualizes the climate change diagnostics
 
 datadirout = ''; %/Users/Shared/IPCC/Interp2Cru/';
-filein=[datadirout cvar '_' scen '_year' num2str(year) '.mat' ];
-load(filein,'nbmod','models','x','y','fmod','fmodm','fmodsc',...
+filein=[datadirout cvar '_' scen '_year' num2str(year21) '_year' num2str(year20) '.mat' ];
+load(filein,'nbmod','x','y','fmod','fmodm','fmodsc',...
     'fmoddiagm','fmoddiagsc');
+
+load coast_world
 
 if month == 0
     fdiag=fmoddiagm;
@@ -28,11 +30,13 @@ titstr=[' MEAN ',' MIN  ',' MAX  ',' STD  ',' 25%  ',' 75%  '];
 titstr=reshape(titstr,6,6)';
 
 nip=[1 3 4 5 6 8];
+x = x';
+y = y';
 x=circshift(x, [72 1]);
 x(1:72)=x(1:72)-360;
 x = x - 0.5;
 [plon,plat]=meshgrid(x,y);
-figure; %a4
+
 if strcmp(scen,'20c3m') == 1
     cmin=[-4 -4 -4 0 -4 -4];
     cmax=[+4 +4 -4 2 +4 +4];
@@ -49,6 +53,7 @@ else
     ncol=20;
 end
 
+figure; %a4
 for ip=1:6
     subplot(2,3,ip);
     mode=ip;
@@ -59,22 +64,20 @@ for ip=1:6
     h=pcolorm(plat, plon, dots);
     caxis([cmin(ip), cmax(ip)]);
     cmap=colormap(jet(ncol));                     % set N. of colors.
-    %if cmin(ip) < 0
-    %    cmap([ncol/2 ncol/2+1],:)=1;
-    %end
+    if cmin(ip) < 0
+        cmap([ncol/2 ncol/2+1],:)=1;
+    end
     colormap(cmap);
     colorbar('horizon');
     shading interp;
-    hold on;
+    %hold on;
     %[c3,h3]=contourm(plat,plon,squeeze(fdiag(nip(ip),:,:)),[ 0 0 ],'k');
     %set(h3,'linestyle','-','linewidth',1.2,'visible','on')
     hold on;
     % Re-Draw the map
-    load coast_world
     plotm(latW,lonW,'k')
     hold on;
 end
-
 
 %Friendly month title.
 %titstr={'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'};

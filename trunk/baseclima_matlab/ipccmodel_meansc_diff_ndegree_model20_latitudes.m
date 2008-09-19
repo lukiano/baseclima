@@ -1,8 +1,9 @@
 %Made by Luciano, so you know whom to address for errors.
 
 function ipccmodel_meansc_diff_ndegree_model20_latitudes(scen, cvar, ndegree, year20, month)
-dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
+%dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
+dirString = uigetdir('./modelos','Choose data directory');
 if (dirString == 0)
     % no directory was chosen, exit program
     return;
