@@ -68,8 +68,8 @@ function [sD, sMap, cluster_models, BmusTwoDims] = som_range_data(scen, cvar, mo
         BmusTwoDims(dim1, dim2) = Cmus(i);
     end
     
+    %display_neurons_in_world_map(number_of_clusters, x, y, dims, gridpoints, Cmus);
     display_neurons_in_SA_map(number_of_clusters, x, y, dims, gridpoints, Cmus);
-    %display_neurons_in_SA_map(number_of_neurons, x, y, dims, gridpoints, Bmus);
 
     cluster_models = getClusterModels(number_of_clusters, Cmus, big_range_data, number_of_models);
    

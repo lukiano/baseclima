@@ -16,8 +16,9 @@
 %cluster_filename: name of file created by som_range_data to be used for cluster masks
 %cluster_number_mask: number of the cluster to be used as a mask
 function comparison_plot(scen, cvar_x, cvar_y, year21, year20, type_x, type_y, month, regional_masks, cluster_filename, cluster_number_mask)
-    dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
-    %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
+    %dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
+    %dirString = uigetdir('c:\workspace\BaseClima\matlab','Choose data directory');
+    dirString = uigetdir('./modelos','Choose data directory');
     if (dirString == 0)
         % no directory was chosen, exit program
         return;

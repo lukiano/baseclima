@@ -3,12 +3,14 @@
 %Displays one map for each model. The map is the difference between
 % 'mean model data in 2075-2100' and 'mean model data in 1975-2000'
 function ipccmodel_meansc_diff_ndegree_model20(scen, cvar, ndegree, year20, month)
-dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
+%dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
-if (dirString == 0)run = get_run(tn{1});
+dirString = uigetdir('./modelos','Choose data directory');
+if (dirString == 0)
     % no directory was chosen, exit program
     return;
 else
+    load coast_world;
     files = dir(dirString); % obtain file names
     names = transpose({files.name});
     % only retain those file names we are interested in
@@ -69,6 +71,8 @@ jnan=find(isnan(data_scen21) == 1 | isnan(data_scen20) == 1);
 data(jnan)=NaN;
     
 % Begin drawing...
+x = x';
+y = y';
 x=circshift(x,[72 1]);
 x(1:72)=x(1:72)-360;
 x = x - 0.5;
@@ -77,12 +81,10 @@ if strcmp(cvar, 'pr') == 1
     cmin = -4;
     cmax = 4;
 else %tas
-    cmin = -6 + ndegree;
-    cmax = 6 + ndegree;
+    cmin = -6
+    cmax = 6
 end
 ncol = 40;
-    
-load coast_world;
     
 figure; %a4l   
 map_globe;tightmap;
@@ -96,8 +98,8 @@ if cmin < 0
 end
 colormap(cmap);
 colorbar('horizon');
- shading interp;
-%hold on;
+shading interp;
+hold on;
 % Re-Draw the map
 plotm(latW,lonW,'k')
 %hold on;

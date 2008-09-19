@@ -5,8 +5,9 @@ function buildSmoothedAverage_lats(scen, cvar, latitudes)
     %Construye la distribucion del promedio anual para todos los anios del
     %modelo, promediando con 25 anios.
 
-    dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
-    %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
+    %dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
+    %dirString = uigetdir('c:\workspace\baseclima_matlab','Choose data directory');
+    dirString = uigetdir('./modelos','Choose data directory');
     if (dirString == 0)
         % no directory was chosen, exit program
         return;
@@ -23,6 +24,8 @@ function buildSmoothedAverage_lats(scen, cvar, latitudes)
             contador = contador + 1;
         end
     end
+    clear files;
+    clear rexp;
     
     load('weightMatrix.mat', 'weight_matrix');
     
@@ -32,13 +35,17 @@ function buildSmoothedAverage_lats(scen, cvar, latitudes)
     for tn = truenames
         fullname = fullfile(dirString, tn{1});
         struc = load(fullname, 'data', 'model', 'x', 'y');
+        models{contador} = struc.model;
+        y = struc.y;
         data = struc.data;
         run = get_run(tn{1});
+        clear struc;
         
-        full20c3mname = fullfile(dirString, [cvar '_20c3m_' struc.model '_' run '_allyears.mat']);
+        full20c3mname = fullfile(dirString, [cvar '_20c3m_' models{contador} '_' run '_allyears.mat']);
         struc20c3m = load(full20c3mname, 'data', 'model');
         data = cat(1, struc20c3m.data, data);
-        
+        clear struc20c3m;
+        size(data)
         data(find(isnan(data))) = 0; % as we'll be doing a sum, zero means nothing
 
         for i = 1:size(data, 1)
@@ -51,7 +58,7 @@ function buildSmoothedAverage_lats(scen, cvar, latitudes)
             toLat = latitudes(j, 2);
             
             for lat_index = 1:size(data_tmp, 2) % second dimension is latitude
-                lat = struc.y(lat_index);
+                lat = y(lat_index);
                 if abs(lat) < abs(fromLat) || abs(lat) > abs(toLat)
                 %if lat < fromLat || lat > toLat
                     data_tmp(:, lat_index, :) = 0;
@@ -74,9 +81,10 @@ function buildSmoothedAverage_lats(scen, cvar, latitudes)
             end
         end
         
-        models{contador} = struc.model;
         runs{contador} = run;
         contador = contador + 1;
+        clear data;
+        clear data_tmp;
     end
     
     longitud = size(smoothed_years, 3);
