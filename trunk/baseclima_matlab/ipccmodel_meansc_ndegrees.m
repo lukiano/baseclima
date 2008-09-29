@@ -15,10 +15,10 @@ if strcmp(scen,'20c3m') == 1
     return;
 end
 
-if strcmp(cvar,'tas') == 0
-    'Only TAS makes sense with degrees. (fow now al least)' 
-    return;
-end
+% if strcmp(cvar,'tas') == 0
+%     'Only TAS makes sense with degrees. (for now at least)' 
+%     return;
+% end
 
 %dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
@@ -35,7 +35,7 @@ latsString = '';
 for i = 1:size(latitudes, 1)
     latsString = [latsString '_' num2str(latitudes(i, 1)) '_' num2str(latitudes(i, 2)) ];
 end
-load([cvar '_' scen '_smoothed_years_lats' latsString '.mat'], 'models', 'runs', 'smoothed_years','years', 'latitudes');
+load(['tas' '_' scen '_smoothed_years_lats' latsString '.mat'], 'models', 'runs', 'smoothed_years','years', 'latitudes');
 
 smoothed_years = squeeze(smoothed_years(1,:,:)); %use the first latitude
 nbmod = size(smoothed_years, 1);

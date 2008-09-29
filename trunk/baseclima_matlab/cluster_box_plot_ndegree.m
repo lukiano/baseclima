@@ -1,6 +1,6 @@
 %scen: 'sresa2' or 'sresa1b'
 %cvar: 'tas', 'pr' or 'sic'
-%year21: average centered year of 21th century
+%ndegree: number of degrees from 20th century values
 %year20: average centered year of 20th century
 %type:
 %1) absolute 21th century values
@@ -11,7 +11,7 @@
 %regional_masks: cell array with string with mask names. Ex: {'southamerica','africa'}
 %cluster_filename: name of file created by som_range_data to be used for cluster masks
 %cluster_number_mask: number of the cluster to be used as a mask
-function cluster_box_plot(scen, cvar, year21, year20, type, month, regional_masks, cluster_filename, number_of_masks)
+function cluster_box_plot_ndegree(scen, cvar, ndegree, year20, type, month, regional_masks, cluster_filename, number_of_masks)
     %dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
     %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
     dirString = uigetdir('./modelos','Choose data directory');
@@ -19,7 +19,7 @@ function cluster_box_plot(scen, cvar, year21, year20, type, month, regional_mask
         % no directory was chosen, exit program
         return;
     end
-    [big_data, modelnames_orig] = create_big_data(scen, cvar, dirString, month, year21, year20, type);
+    [big_data, modelnames_orig] = create_big_data(scen, cvar, dirString, month, ndegree, year20, type);
     modelnames = cell(length(modelnames_orig), 1);
     for i = 1:length(modelnames_orig)
         modelnames{i} = regexprep(modelnames_orig{i},'\_','\\_');
@@ -27,26 +27,38 @@ function cluster_box_plot(scen, cvar, year21, year20, type, month, regional_mask
     
     for i = 1:number_of_masks
         mask = getMasks(regional_masks, cluster_filename, i);
-        sum_array(:, i) = sum_data_norm(big_data, mask)
+        sum_array(:, i) = sum_data_norm(big_data, mask);
     end
     figure;
     hold on;
-   
     number_of_models = size(sum_array, 1);
-    half = floor(number_of_models / 2);
-    quarter = floor(number_of_models / 4);
+    
+%     half = floor(number_of_models / 2);
+%     quarter = floor(number_of_models / 4);
+    %cmap=colormap;
+    %cmap=colormap(hsv(number_of_models));
+    map = [0 .8 0; 1 0 1; 0 .8 .8; 0 0 1; .5 .5 .5];
+%     map = map(1:quarter, :);
+    cmap = cat(1, map, map, map, map);
+    colormap(cmap);
     for j = 1:number_of_masks
-        for i = 1:quarter
-            scatter(j, sum_array(i,j));
+        arr = sum_array(:, j);
+        [sorted_arr, indices] = sort(arr);
+        for i = 1:5
+            x = mod(find(indices == i),3)-1;
+            scatter(j+x*.2, sum_array(i,j),[], cmap(i,:), 'filled');
         end
-        for i = quarter+1:half
-            scatter(j, sum_array(i,j), 'filled');
+        for i = 6:10
+            x = mod(find(indices == i),3)-1;
+            scatter(j+x*.2, sum_array(i,j),[], cmap(i,:),'x');
         end
-        for i = half+1:half+quarter
-            scatter(j, sum_array(i,j),'*');
+        for i = 11:15
+            x = mod(find(indices == i),3)-1;
+            scatter(j+x*.2, sum_array(i,j),[], cmap(i,:),'*');
         end
-        for i = half+quarter+1:number_of_models
-            scatter(j, sum_array(i,j),'+');
+        for i = 16:17
+            x = mod(find(indices == i),3)-1;
+            scatter(j+x*.2, sum_array(i,j),[], cmap(i,:), 'd');
         end
     end
     legend(modelnames,'location','EastOutside');
@@ -55,25 +67,25 @@ function cluster_box_plot(scen, cvar, year21, year20, type, month, regional_mask
     xlabel('Clusters');
     
     if type == 1
-        ylabel([cvar ' (avg. year ' num2str(year21) ' values)']);
+        ylabel([cvar ' (avg. year ' num2str(ndegree) ' degree values)']);
     elseif type == 2
-        ylabel([cvar ' ' num2str(year21) ' - ' num2str(year20)]);
+        ylabel([cvar ' ' num2str(ndegree) ' degrees - ' num2str(year20)]);
     elseif type == 3
         ylabel([cvar ' (avg. year ' num2str(year20) ' values)']);
     elseif type == 4
         ylabel([cvar ' ' num2str(year20) ' - obs ' num2str(year20)]);
     end
     
-    titulo = [scen ' - year:' num2str(year21)];
+    titulo = [scen ' - degrees:' num2str(ndegree)];
     if ~isempty(regional_masks)
         titulo = [titulo ' - Reg. Masks:'];
         for i = 1:length(regional_masks)
             titulo = [titulo regional_masks{i} ' '];
         end
     end
-    if ~isempty(cluster_filename)
-        titulo = [titulo ' - Cluster Mask: ' regexprep(cluster_filename,'\_','\\_')];
-    end
+%     if ~isempty(cluster_filename)
+%         titulo = [titulo ' - Cluster Mask: ' regexprep(cluster_filename,'\_','\\_')];
+%     end
     title(titulo);
     grid on;
     hold off;
@@ -113,11 +125,11 @@ function sum_array = mean_data(big_data, mask)
     end
 end
 
-function [big_data, modelnames] = create_big_data(scen, cvar, dirString, month, year21, year20, type)
+function [big_data, modelnames] = create_big_data(scen, cvar, dirString, month, ndegree, year20, type)
     files = dir(dirString); % obtain file names
     names = transpose({files.name});
     % only retain those file names we are interested in
-    rexp = regexp(names, [cvar '_' scen '_.*_year' num2str(year21) '.mat']);
+    rexp = regexp(names, [cvar '_' scen '_.*_' num2str(ndegree) 'degree.mat']);
     contador = 1;
     truenames = cell(0);
     for i = 1:length(rexp)

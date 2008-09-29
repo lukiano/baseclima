@@ -1,3 +1,4 @@
+%Builds 'allyears' files from netcdf files. (SRES or 20c3m files)
 %scen: 'sresa2', 'sresa1b', '20c3m', etc
 %type: 'atm', 'ice'
 %cvar: 'tas', 'pr', 'sic', etc
@@ -8,8 +9,9 @@ function ipccmodel_meansc_allyears(scen, type, cvar)
 % model_interp('20c3m','ipsl_cm4',1,'tas')
 % per si activated for climate change scenarios in order to choose the
 % 25-y period and for 20th century to compare the two 25year periods.
-
-dirfile=['/Users/Shared/IPCC/' scen '_' type '_mo_' cvar '/'];
+%dir = '/Users/Shared/IPCC';
+dirinput = '';
+dirfile=[dirinput '/' scen '_' type '_mo_' cvar '/'];
 models=dir([dirfile '*']);
 nbmod=length(models);
 nn=0;
@@ -28,9 +30,9 @@ for imod=1:nbmod
     %    continue;
     %end
 
-    runs=dir(['/Users/Shared/IPCC/' scen '_' type '_mo_' cvar '/' model '/run*']);
+    runs=dir([dirinput '/' scen '_' type '_mo_' cvar '/' model '/run*']);
     run=runs(1).name;
-    datadir=['/Users/Shared/IPCC/' scen '_' type '_mo_' cvar '/' model '/' run '/'];
+    datadir=[dirinput '/' scen '_' type '_mo_' cvar '/' model '/' run '/'];
     files=dir([datadir cvar '*.nc']);
     filenc1=[datadir files(1).name]
     %nc=netcdf(filenc1,'nowrite');
@@ -56,7 +58,7 @@ for imod=1:nbmod
         elseif strcmp(model, 'bcc_cm1') == 1
             % for 20c3m we use 1950-2000 data in sresa2 as 20c3m seems to
             % be faulty
-            datadir=['/Users/Shared/IPCC/sresa2_' type '_mo_' cvar '/bcc_cm1/' run '/'];
+            datadir=[dirinput '/sresa2_' type '_mo_' cvar '/bcc_cm1/' run '/'];
             files=dir([datadir cvar '*.nc']);
             filenc1=[datadir files(1).name];
             xgrid=nc_varget(filenc1,'lon');
@@ -105,7 +107,7 @@ for imod=1:nbmod
             elseif strcmp(scen,'sresa2') == 1 && strcmp(model, 'giss_model_er') == 1
                 % Sresa2 starts in 2004, 20c3m ends in 2003.
                 % habria que cargar los 3 ultimos anios del 20c3m
-                datadir20=['/Users/Shared/IPCC/20c3m_' type '_mo_' cvar '/' model '/' run '/'];
+                datadir20=[dirinput '/20c3m_' type '_mo_' cvar '/' model '/' run '/'];
                 files20=dir([datadir20 cvar '*.nc']);
                 filenc1_20=[datadir20 files20(1).name];
                 data20=nc_varget(filenc1_20,cvar);
@@ -132,7 +134,7 @@ for imod=1:nbmod
                 end
                 
                 %Save the interpolated field
-                datadirout = '/Users/Shared/IPCC/Interp2Cru/';
+                datadirout = [dirinput '/Interp2Cru/'];
                 fileout=[datadirout cvar '_' scen '_' model '_' run '_allyears.mat' ];
     
                 save(fileout,'model','run','time','x','y','data','npi','npj'); %'datani','xgrid','ygrid'
@@ -184,7 +186,7 @@ for imod=1:nbmod
     data2 = [];                   
     
     %Save the interpolated field
-    datadirout = '/Users/Shared/IPCC/Interp2Cru/';
+    datadirout = [dirinput '/Interp2Cru/'];
     fileout=[datadirout cvar '_' scen '_' model '_' run '_allyears.mat' ];
     save(fileout,'model','run','time','x','y','data','npi','npj'); %'datani','xgrid','ygrid'
 end
