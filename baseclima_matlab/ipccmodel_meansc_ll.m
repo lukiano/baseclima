@@ -1,14 +1,11 @@
+%Builds a file with average 25years centered in selected year, from
+%'allyears' files.
 %year: must be greater than 2000 for 'sresa2' and 'sresa1b' and greater than 1900 for '20c3m'
 function ipccmodel_meansc_ll(scen, cvar, year)
 
-% This program computes the interpolation of the IPCC runs onto the 
-% CRU datagridty
-% model_interp('20c3m','ipsl_cm4',1,'tas')
-% year si activated for climate change scenarios in order to choose the
-% 25-year period and for 20th century to compare the two 25year periods.
-
-dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
+%dirString = uigetdir('/Users/Shared/IPCC','Choose data directory');
 %dirString = uigetdir('g:\workspace\BaseClima\matlab','Choose data directory');
+dirString = uigetdir('./modelos','Choose data directory');
 if (dirString == 0)
     % no directory was chosen, exit program
     return;
@@ -32,7 +29,7 @@ for imod=1:nbmod
     model = fullname(length([cvar '_' scen])+2:strfind(fullname, '_run')-1);
     run = fullname(length([cvar '_' scen '_' model])+2:strfind(fullname, '_allyears')-1);
     offset = 2000;
-    if strcmp(scen, '20c3m') == 1
+    if strcmp(scen, '20c3m') == 1 || strcmp(scen, 'obs') == 1
         offset = 1900;
     end
     ini_year = year - smooth - offset;

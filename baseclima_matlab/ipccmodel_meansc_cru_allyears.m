@@ -1,3 +1,4 @@
+%Builds 'allyears' files from netcdf files (CRU files)
 %cvar: 'tas', 'pr'
 function ipccmodel_meansc_cru_allyears(cvar)
 
